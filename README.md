@@ -10,7 +10,7 @@ Unofficial Home Assistant OS application packaging for [Jeric-X/SyncClipboard](h
 
 1. 在 Home Assistant 的“设置 → 应用 → 安装应用 → 菜单 → 仓库”添加本 GitHub 仓库的网页地址。
 2. 安装 **SyncClipboard Server**。
-3. 在“配置”设置独立的用户名和至少 20 字符密码，然后启动。
+3. 在“配置”设置独立的用户名和至少 16 字符密码，然后启动。
 4. 客户端服务端地址填写 `http://你的HA局域网IP:5033`，使用上述账号密码。
 
 目前支持 **amd64**，由 HA 在设备上构建。未验证其他架构。初始密码为空，服务会拒绝启动，必须先配置密码。
