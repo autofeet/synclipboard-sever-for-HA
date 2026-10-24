@@ -47,7 +47,7 @@ def require(condition, message):
 
 def verify(image):
     name = 'syncclipboard-test-' + uuid.uuid4().hex[:12]
-    password = secrets.token_hex(24) + '"\\end'
+    password = secrets.token_hex(5) + '"\\end!'
     username = 'ci_test'
     with tempfile.TemporaryDirectory(prefix='syncclipboard-ha-') as directory:
         data = Path(directory)
