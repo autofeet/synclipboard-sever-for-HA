@@ -1,6 +1,6 @@
 {
   "name": "SyncClipboard Server",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "slug": "syncclipboard_server",
   "url": "https://github.com/autofeet/synclipboard-sever-for-HA",
   "description": "Cross-platform clipboard sync with independent authentication and persistent history",
