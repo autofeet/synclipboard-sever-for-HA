@@ -1,0 +1,54 @@
+name: Maintain upstream
+
+on:
+  schedule:
+    - cron: '23 2 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: upstream-maintenance
+  cancel-in-progress: false
+
+jobs:
+  update:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - name: Test update validation
+        run: python3 -m unittest discover -s tests -v
+      - name: Find and prepare candidate
+        id: candidate
+        shell: bash
+        run: |
+          set -euo pipefail
+          digest=$(python3 scripts/upstream.py check)
+          result=$(python3 scripts/upstream.py prepare --digest "$digest")
+          echo "changed=$result" >> "$GITHUB_OUTPUT"
+          due=$(python3 scripts/upstream.py due)
+          echo "due=$due" >> "$GITHUB_OUTPUT"
+      - name: Build candidate
+        if: steps.candidate.outputs.changed == 'changed' || steps.candidate.outputs.due == 'true' || github.event_name == 'workflow_dispatch'
+        run: docker build --pull -t syncclipboard-ha:candidate syncclipboard_server
+      - name: Verify before publishing
+        if: steps.candidate.outputs.changed == 'changed' || steps.candidate.outputs.due == 'true' || github.event_name == 'workflow_dispatch'
+        run: python3 scripts/verify.py --image syncclipboard-ha:candidate
+      - name: Record verified version
+        if: steps.candidate.outputs.changed == 'changed' || steps.candidate.outputs.due == 'true' || github.event_name == 'workflow_dispatch'
+        run: python3 scripts/upstream.py record --result verification.json
+      - name: Publish verified update
+        if: steps.candidate.outputs.changed == 'changed' || steps.candidate.outputs.due == 'true' || github.event_name == 'workflow_dispatch'
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add syncclipboard_server/Dockerfile syncclipboard_server/config.json syncclipboard_server/CHANGELOG.md upstream.json maintenance.json
+          git commit -m 'Record verified SyncClipboard maintenance'
+          git push origin HEAD:main
