@@ -121,6 +121,11 @@ def verify(image):
             return {'passed': True, 'server_version': version}
         finally:
             remove()
+            # The app runs as root like the HA container; restore ownership of
+            # this isolated test volume before the runner deletes its temp dir.
+            docker('run', '--rm', '--user', '0:0', '--network', 'none',
+                   '--entrypoint', 'chown', '-v', f'{data}:/data', image,
+                   '-R', f'{os.getuid()}:{os.getgid()}', '/data')
 
 
 if __name__ == '__main__':
