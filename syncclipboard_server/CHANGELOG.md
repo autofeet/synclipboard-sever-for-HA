@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.3
+
+- Update upstream to 3.3.4 (sha256:07af92ba923196c98a237697032d4f330e44155a87d8f4791c225e9fa5a411a3).
+- Passed startup, authentication, text round-trip and container-replacement persistence checks.
+
 ## 0.1.2
 
 - Accept independent passwords of at least 16 characters.
